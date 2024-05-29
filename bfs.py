@@ -1,65 +1,60 @@
 from graph import Graph
-from collections import deque
+from queue import Queue
 
 class BreadthFirstSearch:
     def __init__(self, g, s):
         self.s = s
         self.marked = {}
         self.edgeTo = {}
-        self.distTo = {}
-        self.bfs(g, s)
+        self.distanceTo = {}
+        self.__bfs(g, s)
 
     def hasPathTo(self, v):
+        if v == self.s:
+            return False
         return v in self.marked
-
-
-    def bfs(self, g, s):
-        queue = deque([s])
-        self.marked[s] = True
-        self.distTo[s] = 0
-
-        while queue:
-            v = queue.popleft()
-            for w in g.getAdj(v):
-                if w not in self.marked:
-                    queue.append(w)
-                    self.marked[w] = True
-                    self.getAdj[w] = v
-                    self.distTo[w] = self.distTo[v] + 1
-
-
-    def hasPathTo(self, v):
-        return v in self.marked
-
 
     def pathTo(self, v):
-        if not self.hasPathTo(v):
-            return None
         path = []
-        x = v
-
-        while x != self.s:
-            path.append(x)
-            x = self.edgeTo[x]
-        path.append(self.s)
-        path.reverse
+        while v != self.s:
+            path.insert(0, v)
+            v = self.edgeTo[v]
+        path.insert(0, self.s)
         return path
-    
-    def distanceTo(self, v):
-        return self.distTo[v] if v in self.distTo else float('inf') #infinito positivo
-    
+
+    def distTo(self, v):
+        if not self.hasPathTo(v):
+            return -1
+        return self.distanceTo[v]
+
+    def __bfs(self, g, v):
+        fila = Queue()
+        fila.put(v)
+        self.distanceTo[v] = 0
+        self.marked[v] = True
+        while not fila.empty():
+            v = fila.get()
+            dist = self.distanceTo[v]
+            for w in g.getAdj(v):
+                if w not in self.marked:
+                    self.marked[w] = True
+                    self.edgeTo[w] = v
+                    self.distanceTo[w] = dist + 1
+                    fila.put(w)
 
 
 if __name__ == "__main__":
 
-    g = Graph("movies.txt")
+    g = Graph("tinyG.txt")
 
-    dfs = BreadthFirstSearch(g, "0")
+    bfs = BreadthFirstSearch(g, "0")
 
     for v in g.getVerts():
         print(f"{v}: ", end="")
-        if dfs.hasPathTo(v):
-            for w in dfs.pathTo(v):
+        if bfs.hasPathTo(v):
+            for w in bfs.pathTo(v):
                 print(f"{w} ", end="")
-        print()
+            print("dist:", bfs.distTo(v))
+        else:
+            print("Sem caminho para", v)
     print()

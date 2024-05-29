@@ -31,20 +31,25 @@ class Graph:
         return sb
 
     def addToList(self, v, w):
-        list = self.graph[v] if v in self.graph else []
-        list.append(w)
-        self.graph[v] = list
+        if v not in self.graph:
+            self.graph[v] = set()
+        self.graph[v].add(w)
         self.vertices.add(v)
         self.vertices.add(w)
 
     def __readFromFile(self, filename):
-        with open(filename) as arq:
+        with open(filename, encoding='utf-8') as arq:
             for line in arq:
                 parts = line.strip().split('/')
-                movie = parts[0]
-                actors = parts[1:]  #posicao 1 em diante
+                movie = parts[0].strip()
+                actors = [actor.strip() for actor in parts[1:]]  #posicao 1 em diante
+
                 for actor in actors:    
                     self.addEdge(movie, actor)
+                    for co_actor in actors:
+                        if actor != co_actor:
+                            self.addEdge(actor, co_actor)
+                        
                     
 
 
